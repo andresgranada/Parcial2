@@ -5,39 +5,40 @@ import java.util.Scanner;
 
 public class SolicitarDatos {
     public AccionesParaEstudiante accionesParaEstudiante = new AccionesParaEstudiante();
-    public Scanner teclado = new Scanner(System.in);
+    Scanner teclado = new Scanner(System.in);
 
     public void crearEstudiante() {
-        ArrayList<Double> notas = new ArrayList<Double>();
-        Scanner teclado1 = new Scanner(System.in);
-        Scanner teclado2 = new Scanner(System.in);
+        String textoAMostrar = "-------------------------- \n" +
+                "Crear estudiante \n" +
+                "-------------------------- \n";
+        System.out.println(textoAMostrar);
+
+        ArrayList<Double> notas = new ArrayList<>();
 
         System.out.println("Ingrese su documento: ");
-        String documento = teclado1.nextLine();
+        String documento = teclado.nextLine();
 
         System.out.println("Ingrese su nombre:");
-        String nombre = teclado2.nextLine();
+        String nombre = teclado.nextLine();
 
 
         System.out.println("Notas");
 
         for (int i = 0; i < 4; i++) {
             System.out.println("Ingrese nota "+(i+1)+":");
-            Double nota = teclado2.nextDouble();
+            Double nota = teclado.nextDouble();
+            teclado.nextLine();
             notas.add(nota);
         }
 
         Estudiante estudiante = new Estudiante(nombre,documento,notas);
-        if (accionesParaEstudiante.crearEstudiante(estudiante)) {
-            System.out.println("Estudiante creado");
-        }
+        accionesParaEstudiante.crearEstudiante(estudiante);
 
     }
 
     public void actualizarEstudiante() {
 
-        if (accionesParaEstudiante.estudiantes.size() < 1) {
-            System.out.println("No hay estudiantes");
+        if (!validarEstudiantesExistentes()) {
             return;
         }
 
@@ -48,34 +49,49 @@ public class SolicitarDatos {
             System.out.println("Documento incorrecto");
             return;
         }
-        ArrayList<Double> notas = new ArrayList<Double>();
 
-        System.out.println("Nuevo nombre:");
-        String nombre = teclado.nextLine();
+        String textoAMostrar = "-------------------------- \n" +
+                "Actualizar estudiante \n" +
+                "-------------------------- \n";
+        System.out.println(textoAMostrar);
 
-        System.out.println("Notas");
+        String textoActualizarEstudiante =  "Ingrese la opción 1 para actualizar nombre: \n" +
+                "Ingrese la opción 2 para actualizar notas: \n";
+        System.out.println(textoActualizarEstudiante);
+        String opcionElegida = teclado.nextLine();
 
-        for (int i = 0; i < 4; i++) {
-            System.out.println("Ingrese nota "+(i+1)+":");
-            Double nota = teclado.nextDouble();
-            notas.add(nota);
+        int opcion = Integer.parseInt(opcionElegida);
+
+        switch(opcion) {
+            case 1:
+                System.out.println("Nuevo nombre:");
+                String nombre = teclado.nextLine();
+                accionesParaEstudiante.actualizarNombreEstudiante(documento, nombre);
+                break;
+            case 2:
+                ArrayList<Double> notas = new ArrayList<Double>();
+                for (int i = 0; i < 4; i++) {
+                    System.out.println("Ingrese nota "+(i+1)+":");
+                    Double nota = teclado.nextDouble();
+                    teclado.nextLine();
+                    notas.add(nota);
+                }
+                accionesParaEstudiante.actualizarNotaEstudiante(documento, notas);
+                break;
+            default:
+                System.out.println("Opción incorrecta, seleccione una opción correcta");
         }
-
-        Estudiante estudiante = new Estudiante(nombre,documento,notas);
-        accionesParaEstudiante.actualizarEstudiante(estudiante);
-
-        System.out.println("Estudiante actualizado");
-
-
     }
 
     public void menu() {
-        System.out.println("Menú");
-        String textoMenu =  "Ingrese la opción 1 para ingresar un estudiante: \n" +
+        String textoMenu =  "-------------------------------- Menú ---------------------------------- \n" +
+                            "Ingrese la opción 1 para ingresar un estudiante: \n" +
                             "Ingrese la opción 2 para eliminar un estudiante: \n" +
                             "Ingrese la opción 3 para actualizar un estudiante: \n" +
                             "Ingrese la opción 4 para ver los 3 mejores estudiantes: \n" +
-                            "Ingrese la opción 5 para ver el promedio de los estudiantes: \n";
+                            "Ingrese la opción 5 para ver el promedio y los estudiantes que ganaron: \n" +
+                            "Ingrese la opción 6 para salir: \n" +
+                            "----------------------------------------------------------------------- \n";
 
         System.out.println(textoMenu);
         try {
@@ -106,21 +122,31 @@ public class SolicitarDatos {
                 mejoresEstudiantes();
                 break;
             case 5:
-                accionesParaEstudiante.promedioEstudiantes();
+                estudiantesGanados();
+                break;
+            case 6:
+                System.out.println("Proceso terminado");
+                System.exit(0);
+                break;
             default:
                 System.out.println("Opción incorrecta, seleccione una opción correcta");
         }
 
         menu();
+        System.out.println("Termina");
 
 
     }
 
     public void eliminarEstudiante() {
-        if (accionesParaEstudiante.estudiantes.size() < 1) {
-            System.out.println("No hay estudiantes");
+        if (!validarEstudiantesExistentes()) {
             return;
         }
+
+        String textoAMostrar = "-------------------------- \n" +
+                                "Eliminar \n" +
+                                "-------------------------- \n";
+        System.out.println(textoAMostrar);
 
         System.out.println("Escriba el documento del estudiante");
         String documento = teclado.nextLine();
@@ -128,19 +154,39 @@ public class SolicitarDatos {
             System.out.println("Documento incorrecto");
             return;
         }
+
         accionesParaEstudiante.eliminarEstudiante(documento);
-        System.out.println("Estudiante eliminado");
     }
 
     public void mejoresEstudiantes() {
-        List<Estudiante> mejoresEstudiantes = accionesParaEstudiante.obtenerMejoresEstudiantes();
-        mejoresEstudiantes.stream().forEach((p)-> {
-            System.out.println(p.toString());
-        });
-        if (accionesParaEstudiante.estudiantes.size() < 1) {
-            System.out.println("No hay estudiantes");
+        String textoAMostrar = "-------------------------- \n" +
+                "Los 3 mejores estudiantes \n" +
+                "-------------------------- \n";
+        System.out.println(textoAMostrar);
+
+        accionesParaEstudiante.obtenerMejoresEstudiantes();
+
+        if (!validarEstudiantesExistentes()) {
             return;
         }
+    }
+
+    public void estudiantesGanados() {
+        String textoAMostrar = "-------------------------- \n" +
+                "Estudiantes que ganaron \n" +
+                "-------------------------- \n";
+        System.out.println(textoAMostrar);
+
+        accionesParaEstudiante.promedioEstudiantes();
+    }
+
+    public boolean validarEstudiantesExistentes() {
+        if (accionesParaEstudiante.estudiantes.size() < 1) {
+            System.out.println("No hay estudiantes");
+            return false;
+        }
+
+        return true;
     }
 
 }

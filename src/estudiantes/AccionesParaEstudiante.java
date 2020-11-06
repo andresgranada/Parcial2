@@ -2,86 +2,73 @@ package estudiantes;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public class AccionesParaEstudiante {
     public static List<Estudiante> estudiantes = new ArrayList<>();
-    public ArrayList<Double> notas = new ArrayList <Double>() {
-        {
-            add(2.0);
-            add(3.0);
-            add(4.0);
-            add(5.0);
-        }
-    };
 
-    public boolean crearEstudiante(Estudiante estudiante) {
+    public void crearEstudiante(Estudiante estudiante) {
         estudiantes.add(estudiante);
-        return true;
+        System.out.println("Estudiante creado");
     }
 
     public void eliminarEstudiante(String documento) {
         estudiantes = estudiantes.stream()
-                .filter(name -> name.getDocumento() != documento)
+                .filter(name -> !name.getDocumento().equals(documento))
                 .collect(Collectors.toList());
+        System.out.println("Estudiante eliminado");
     }
 
-    public void actualizarEstudiante(Estudiante estudiante) {
-        int indiceEstudiante = buscarIndiceEstudiantes(estudiante.documento);
-        estudiantes.set(indiceEstudiante, estudiante);
+    public void actualizarNombreEstudiante(String documento, String nombre) {
+        estudiantes.stream()
+                .filter(name -> name.getDocumento().equals(documento))
+                .forEach(estudiante -> {
+                    estudiante.setNombre(nombre);
+                });
+        System.out.println("Estudiante actualizado");
+
     }
 
-    public List<Estudiante> obtenerMejoresEstudiantes() {
-        ArrayList<Estudiante> mejoresEstudiantes = new ArrayList<>();
+    public void actualizarNotaEstudiante(String documento, ArrayList<Double> nuevasNotas) {
+        estudiantes.stream()
+                .filter(estudiante -> estudiante.getDocumento().equals(documento))
+                .forEach(estudiante -> {
+                    estudiante.setNotas(nuevasNotas);
+                });
 
-        List<Double> promedio = estudiantes.stream()
-                .map(estudiante -> obtenerPromedio(estudiante.getNotas()))
-                .sorted()
-//                .max(Comparator.comparing(estudiante -> obtenerPromedio(estudiante.getNotas())))
-                .collect(Collectors.toList());
+        System.out.println("Estudiante actualizado");
 
-        Collections.reverse(promedio);
-        promedio = promedio.stream().limit(3).collect(Collectors.toList());
-
-        for (int i = 0; i < estudiantes.size(); i++) {
-//            System.out.println(obtenerPromedio(estudiantes.get(i).getNotas()));
-            if (promedio.indexOf(obtenerPromedio(estudiantes.get(i).getNotas())) != -1) {
-                mejoresEstudiantes.add(estudiantes.get(i));
-            }
-        }
-
-
-        return mejoresEstudiantes;
     }
 
-    public int buscarIndice(List<Double> a, Double target) {
-        return IntStream.range(0, estudiantes.size())
-                .filter(i -> target == a.get(i))
-                .findFirst()
-                .orElse(-1);
+    public void obtenerMejoresEstudiantes() {
+
+        estudiantes.stream()
+                .sorted(Comparator.comparing(Estudiante::obtenerPromedio, Comparator.reverseOrder()))
+                .limit(3)
+                .collect(Collectors.toList())
+                .forEach(estudiante -> System.out.println(estudiante.toString()));
+
+
     }
 
     public int buscarIndiceEstudiantes(String documento) {
         return IntStream.range(0, estudiantes.size())
-                .filter(i -> documento == estudiantes.get(i).documento)
+                .filter(i -> documento.equals(estudiantes.get(i).documento))
                 .findFirst()
                 .orElse(-1);
     }
 
-    public double obtenerPromedio(ArrayList<Double> lista) {
-        OptionalDouble promedio = OptionalDouble.empty();
-        promedio = lista.stream()
-                .mapToDouble(e -> e)
-                .average();
-
-        return promedio.isPresent() ? promedio.getAsDouble() : null;
-    }
-
     public void promedioEstudiantes() {
         Map<String, Double> map = estudiantes.stream()
-                .collect(Collectors.toMap(Estudiante::getDocumento, estudiante -> obtenerPromedio(estudiante.getNotas())));
-//        return map;
-        System.out.println(map);
+                .filter(estudiante -> estudiante.obtenerPromedio() >= 3.0)
+                .collect(Collectors.toMap(Estudiante::getDocumento, Estudiante::obtenerPromedio));
+
+        for (Map.Entry<String, Double> entry : map.entrySet()) {
+            System.out.println("Documento: " + entry.getKey() + ", Promedio: " + entry.getValue());
+        }
+
+        if (map.size() == 0) {
+            System.out.println("No se encuentran estudiantes ganados");
+        }
     }
 }
