@@ -90,7 +90,8 @@ public class SolicitarDatos {
                             "Ingrese la opción 3 para actualizar un estudiante: \n" +
                             "Ingrese la opción 4 para ver los 3 mejores estudiantes: \n" +
                             "Ingrese la opción 5 para ver el promedio y los estudiantes que ganaron: \n" +
-                            "Ingrese la opción 6 para salir: \n" +
+                            "Ingrese la opción 6 para ver todos los estudiantes: \n" +
+                            "Ingrese la opción 7 para salir: \n" +
                             "----------------------------------------------------------------------- \n";
 
         System.out.println(textoMenu);
@@ -125,6 +126,9 @@ public class SolicitarDatos {
                 estudiantesGanados();
                 break;
             case 6:
+                verEstudiantes();
+                break;
+            case 7:
                 System.out.println("Proceso terminado");
                 System.exit(0);
                 break;
@@ -136,6 +140,11 @@ public class SolicitarDatos {
         System.out.println("Termina");
 
 
+    }
+
+    public void verEstudiantes() {
+        AccionesParaEstudiante.estudiantes.forEach(estudiante -> System.out.println(estudiante.toString()));
+        validarEstudiantesExistentes();
     }
 
     public void eliminarEstudiante() {
